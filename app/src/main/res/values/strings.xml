@@ -1,4 +1,3 @@
-
 <resources>
     <!-- Title for the application. [CHAR LIMIT=12] -->
     <string name="app_name">Quake Report</string>
@@ -35,4 +34,7 @@
     <!-- Label for order-by most recent option [CHAR LIMIT=20] -->
     <string name="settings_order_by_most_recent_label">Most Recent</string>
     <string name="settings_order_by_most_recent_value" translatable="false">time</string>
+    <string name="facebook_app_id">1395828720479763</string>
+
+
 </resources>

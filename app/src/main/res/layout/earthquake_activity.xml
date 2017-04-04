@@ -14,10 +14,12 @@
      limitations under the License.
 -->
 <!-- Layout for a list of earthquakes -->
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"
@@ -35,6 +37,13 @@
         android:layout_centerInParent="true"
         android:textAppearance="?android:textAppearanceMedium"/>
 
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/login_display"/>
+
     <!-- Loading indicator for user feedback between queries to USGS -->
     <!--<ProgressBar
         android:id="@+id/loading_indicator"
@@ -43,4 +52,4 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"/> -->
 
-</RelativeLayout>
+</LinearLayout>

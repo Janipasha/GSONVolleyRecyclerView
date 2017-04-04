@@ -1,153 +1,71 @@
 package com.gsonvolley.myapplication;
 
 import android.app.Application;
-import android.app.LoaderManager;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-import android.net.NetworkInfo;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+/**
+ * Created by Jani on 04-04-2017.
+ */
 
-import java.io.Console;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+public class MainActivity extends AppCompatActivity{
 
-import static android.R.attr.data;
-import static android.R.attr.maxEms;
-import static android.appwidget.AppWidgetManager.getInstance;
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
-
-public class MainActivity extends AppCompatActivity {
-
-    private EarthquakeAdapter mAdapter;
-
-    List<featuredata> mfeatureData;
-
-    private TextView mEmptyTextView;
-    private String url = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&limit=6&minmagnitude=4";
-
-    private RecyclerView earthquakeView;
-
+    private LoginButton loginButton;
+    private CallbackManager callbackmanager;
+    private TextView mloginResult;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.earthquake_activity);
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        setContentView(R.layout.fblogin);
 
-        mEmptyTextView = (TextView)findViewById(R.id.empty_view);
-        //View loadingIndicator = findViewById(R.id.loading_indicator);
-
-
-        mfeatureData = new ArrayList<>();
+        mloginResult = (TextView)findViewById(R.id.login_display);
 
 
-       earthquakeView = (RecyclerView) findViewById(R.id.list);
+        callbackmanager= CallbackManager.Factory.create();
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        earthquakeView.setLayoutManager(layoutManager);
+        loginButton = (LoginButton)findViewById(R.id.login_button);
 
-        earthquakeView.setHasFixedSize(true);
+        loginButton.registerCallback(callbackmanager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+               Log.d("User ID: ",loginResult.getAccessToken().getUserId());
+                Log.d("Auth Token: " ,loginResult.getAccessToken().getToken());
 
+                Intent intent = new Intent(MainActivity.this,DataActivity.class);
+                startActivity(intent);
+
+            }
+
+            @Override
+            public void onCancel() {
+                mloginResult.setText("Login attempt canceled.");
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+                mloginResult.setText("Login attempt failed.");
+
+            }
+        });
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-
-    ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected()) {
-
-            JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.i("akunamatata", response.toString());
-
-                            Gson gson = new Gson();
-                            Earthquakedatajsonclass red = gson.fromJson(response.toString(), Earthquakedatajsonclass.class);
-
-                            for(int i=0;i<red.getFeatures().size();i++){
-                                mfeatureData.add(red.getFeatures().get(i));
-                            }
-
-                            Log.d("error",mfeatureData.toString());
-
-
-
-                        }
-
-
-                        //mEarthquakedatajsonclass = red;
-
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            // TODO Auto-generated method stub
-
-                        }
-                    });
-
-            requestQueue.add(jsObjRequest);
-
-            mAdapter = new EarthquakeAdapter(mfeatureData,MainActivity.this);
-
-            earthquakeView.setAdapter(mAdapter);
-           // loadingIndicator.setVisibility(View.GONE);
-
-
-
-
-
-        } else {
-            // Otherwise, display error
-            // First, hide loading indicator so error message will be visible
-
-            //loadingIndicator.setVisibility(View.GONE);
-
-            // Update empty state with no connection error message
-            mEmptyTextView.setText(R.string.no_internet_connection);
-        }
-
-
-
-// Access the RequestQueue through your singleton class.
-
-
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        callbackmanager.onActivityResult(requestCode, resultCode, data);
     }
+
 }
-
-
-
